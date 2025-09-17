@@ -9,7 +9,6 @@ source .venv/bin/activate
 
 # Check out the examples
 python examples/otel.py
-python examples/plaintext.py
 
 # Try the logger from the Python shell
 python
