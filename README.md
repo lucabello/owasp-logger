@@ -6,6 +6,11 @@ Example usage:
 # Set up the environment
 uv sync --group dev
 source .venv/bin/activate
+
+# Check out the examples
+python examples/otel.py
+python examples/plaintext.py
+
 # Try the logger from the Python shell
 python
 >>> from src.owasp_logger import OWASPLogger
