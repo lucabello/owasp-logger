@@ -1,24 +1,16 @@
-import json
-
-from opentelemetry import trace
 from opentelemetry.sdk._logs import (
     LogData,
-    LoggerProvider,
-    LoggingHandler,
-    LogRecord,
     LogRecordProcessor,
 )
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.trace import get_current_span
 
-from owasp_logger.model import NESTED_JSON_KEY, OWASPLogEvent
+from owasp_logger.model import NESTED_JSON_KEY
 
 
 class OWASPLogRecordProcessor(LogRecordProcessor):
-    """
+    """Enrich OTel logs with OWASP-compliant data.
+
     A processor that inspects LogData coming in from standard logging via OTel LoggingHandler.
-    If the original LogRecord had an `owasp_event` extra (our model), it serializes it into
+    If the original LogRecord has extra OWASP data (under NESTED_JSON_KEY), it serializes it into
     the OTel body or into attributes, so that the downstream exporter sees structured data.
     """
 
@@ -30,8 +22,8 @@ class OWASPLogRecordProcessor(LogRecordProcessor):
         log_record = log_data.log_record
         attributes = log_record.attributes or {}
         owasp_event = attributes.get(NESTED_JSON_KEY)
+        # Put description in body
         if isinstance(owasp_event, dict):
-            # Put description in body
             log_record.body = owasp_event.get("description", log_record.body)
 
     def shutdown(self) -> None:

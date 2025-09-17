@@ -1,7 +1,6 @@
 import logging
-import json
 from datetime import datetime, timezone
-from typing import List, Literal, Optional
+from typing import List, Optional
 from owasp_logger.model import NESTED_JSON_KEY, OWASPLogEvent
 
 
@@ -11,7 +10,12 @@ class OWASPLogger:
         self.appid = appid
         self.logger = logger or logging.getLogger(__name__)
 
+    def __getattr__(self, item):
+        """Delegate standard logging functions to the internal logger."""
+        return getattr(self.logger, item)
+
     def _log_event(self, event: str, level: int, description: str):
+        """Emit an OWASP-compliant log."""
         log = OWASPLogEvent(
             datetime=datetime.now(timezone.utc).astimezone().isoformat(),
             appid=self.appid,
