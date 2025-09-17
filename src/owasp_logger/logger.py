@@ -2,57 +2,24 @@ import logging
 import json
 from datetime import datetime, timezone
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
+from owasp_logger.model import NESTED_JSON_KEY, OWASPLogEvent
 
 
-class LogEvent(BaseModel):
-    datetime: str = Field(description="ISO8601 timestamp with timezone")
-    appid: str
-    event: str = Field(description="The type of event being logged (i.e. sys_crash)")
-    level: str = Field(description="Log level reflecting the importance of the event")
-    description: str = Field(description="Human-readable description of the event being logged")
-    # useragent: str
-    # source_ip: str = Field(description="IP Address from which the event originated")
-    # host_ip: str
-    # hostname: str
-    # protocol: Literal["http", "https", "grpc"]
-    # port: int
-    # request_uri: str
-    # request_method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"]
-    # region: str
-    # geo: str
-
-    def to_json(self) -> str:
-        return self.model_dump_json(exclude_none=True)
-
-
-class OWASPLogger(logging.Logger):
-    def __init__(
-        self, appid: str, type: str = "security", name: str = __name__, level: int = logging.INFO
-    ):
-        """OWASP-compliant logger.
-
-        Args:
-
-        """
-        super().__init__(name, level)
+class OWASPLogger:
+    def __init__(self, appid: str, logger: Optional[logging.Logger] = None):
+        """OWASP-compliant logger."""
         self.appid = appid
-
-        # Add default handler if none exists
-        if not self.handlers:
-            handler = logging.StreamHandler()
-            handler.setFormatter(logging.Formatter("%(message)s"))
-            self.addHandler(handler)
+        self.logger = logger or logging.getLogger(__name__)
 
     def _log_event(self, event: str, level: int, description: str):
-        log = LogEvent(
+        log = OWASPLogEvent(
             datetime=datetime.now(timezone.utc).astimezone().isoformat(),
             appid=self.appid,
             event=event,
             level=logging.getLevelName(level),
             description=description,
         )
-        self.log(level, log.to_json())
+        self.logger.log(level, log.to_json(), extra={NESTED_JSON_KEY: log.to_dict()})
 
     def authn_login_successafterfail(self, user: str, failures: int):
         """Authentication: successful login."""

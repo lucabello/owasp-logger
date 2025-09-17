@@ -7,6 +7,9 @@ requires-python = "~=3.8.0"
 
 dependencies = [
   "pydantic",
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "opentelemetry-instrumentation",
 ]
 
 [dependency-groups]
@@ -42,7 +45,7 @@ extend-exclude = ["__pycache__", "*.egg_info"]
 convention = "google"
 
 [tool.pyright]
-extraPaths = ["src", "lib"]
+extraPaths = ["src", "examples"]
 pythonVersion = "3.8"
 pythonPlatform = "Linux"
 
