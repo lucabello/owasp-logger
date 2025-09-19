@@ -6,6 +6,7 @@ NESTED_JSON_KEY = "owasp_event"
 
 class OWASPLogEvent(BaseModel):
     datetime: str = Field(description="ISO8601 timestamp with timezone")
+    type: str = Field(default="security")
     appid: str
     event: str = Field(description="The type of event being logged (i.e. sys_crash)")
     level: str = Field(description="Log level reflecting the importance of the event")
