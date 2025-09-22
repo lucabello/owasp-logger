@@ -104,7 +104,7 @@ If the application is already using the OTel format for logs, `OWASPLogger` will
 You have to add some custom processors to the OpenTelemetry Collector configuration to parse the OWASP json blob from your logs.
 
 > [!NOTE]
-> **How do I configure custom processors?**
+> **How do I configure custom processors?**  
 > In the **charm**, use the `custom_processors` Juju config option.
 > In the **snap**, add the processors config under the `processors:` top-level key, then add the processor name in the related logs pipeline.
 
