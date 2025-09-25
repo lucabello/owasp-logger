@@ -89,17 +89,29 @@ In order to label logs consistently and make reliable dashboards, we need the OW
 }
 ```
 
-The `owasp_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
+The `owasp#_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
 
 Given that logs can have various formats depending on the application, the easiest way to get those attributes in place is to configure some *custom processors* in an OpenTelemetry Collector to parse the OWASP information from your log line. The following sections explain how to do so.
 
 ### How to configure an OpenTelemetry Collector
 
-#### Logs following OTel format
+This README classifies logs according to the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/signals/logs/).
+
+#### Structured logs
+
+A structured log is a log whose textual format follows a consistent, machine-readable format. For applications, one of the most common formats is JSON.
+
+##### OpenTelemetry format
 
 If the application is already using the OTel format for logs, `OWASPLogger` will make sure the OWASP information is in the correct place, so there are no additional steps.
 
-#### Logs having arbitray format
+##### Generic JSON
+
+??? instructions for parsing arbitrary json logs ???
+
+#### Semistructured Logs
+
+A semistructured log is a log that does use some self-consistent patterns to distinguish data so that it’s machine-readable, but may not use the same formatting and delimiters between data across different systems. One example of this is `juju debug-log`.
 
 You have to add some custom processors to the OpenTelemetry Collector configuration to parse the OWASP json blob from your logs.
 
@@ -108,4 +120,22 @@ You have to add some custom processors to the OpenTelemetry Collector configurat
 > In the **charm**, use the `custom_processors` Juju config option.
 > In the **snap**, add the processors config under the `processors:` top-level key, then add the processor name in the related logs pipeline.
 
+##### juju debug-log
 
+??? instruction for parsing juju debug-log ???
+
+```yaml
+transform/owasp-cleanup:
+  log_statements:
+    - context: log
+      statements:
+        # TODO: finish looking into this
+        - merge_maps(attributes, ExtractPatterns(body, "^(?P<prefix>.*?)(?P<json>\\{.*\\}?$"), "upsert")
+```
+
+TODO: add how logs appear in Loki (structured metadata?) and how to make a dashboard from them
+
+
+#### Unstructured logs
+
+??? not recommended, write your own parsing logic ???
