@@ -17,13 +17,19 @@ In addition to the normal logger functionality, you'll get the methods to log OW
 
 import logging
 
-from opentelemetry._logs import set_logger_provider
-from opentelemetry.sdk._logs import (
-    LoggerProvider,
-    LoggingHandler,
-)
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogExporter
-from opentelemetry.sdk.resources import Resource
+try:
+    from opentelemetry._logs import set_logger_provider
+    from opentelemetry.sdk._logs import (
+        LoggerProvider,
+        LoggingHandler,
+    )
+    from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, ConsoleLogExporter
+    from opentelemetry.sdk.resources import Resource
+except ImportError as e:
+    raise ImportError(
+        "owasp_logger.otel requires OpenTelemetry dependencies. "
+        "Install the library with: pip install owasp-logger[otel]"
+    ) from e
 
 from owasp_logger.logger import OWASPLogger
 from owasp_logger.otel import OWASPLogRecordProcessor

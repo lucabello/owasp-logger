@@ -2,22 +2,42 @@
 
 **🚧 This readme is work in progress! 🚧**
 
+## Installation
+
+The package is not yet in PyPi, so you should install it from the git repo:
+
+```bash
+# Standalone logger (without OTel dependencies)
+uv pip install "git+https://github.com/lucabello/owasp-logger"
+# Additional OTel logger
+uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
+```
+
+## Usage
+
 Example usage:
 
 ```
-# Set up the environment
-uv sync --group dev
+# Create a virtual environment
+uv venv  # or the classic 'python -m venv .venv'
 source .venv/bin/activate
 
-# Check out the examples
-python examples/otel.py
+# Install the owasp-logger library
+uv pip install "git+https://github.com/lucabello/owasp-logger"
 
 # Try the logger from the Python shell
 python
->>> from src.owasp_logger.logger import OWASPLogger
+>>> from owasp_logger import OWASPLogger
 >>> logger = OWASPLogger(appid="coconut.app")
->>> logger.authn_login_lock(user="bob")
-{"datetime":"2025-09-16T17:04:34.128037+02:00","appid":"coconut.app","event":"authn_login_lock:bob,maxretries","level":"WARNING","description":"User bob login locked because maxretries exceeded"}
+>>> logger.authn_login_lock(user="banana-bob")
+{"datetime": "2025-09-26T12:37:37.886421+02:00", "appid": "coconut.app", "event": "authn_login_lock:banana-bob,maxretries", "level": "WARNING", "description": "User banana-bob login locked because maxretries exceeded", "type": "security"}
+
+# Try out the examples
+python examples/nested_json.py
+
+# If you want the OTel format, install the owasp-logger[otel] extension
+uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
+python examples/otel.py
 ```
 
 ## Getting OWASP logs in Loki
