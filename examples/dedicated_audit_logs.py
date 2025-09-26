@@ -6,12 +6,17 @@ from owasp_logger.logger import OWASPLogger
 appid = "example.appid"
 
 
-# Instantiate the base Python logger
+# Assuming you already have a configured Python logger
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# Transform the Python logger into an OWASPLogger
+# Instead of:
+logger = logging.getLogger(__name__)
+# You can use:
 logger = OWASPLogger(appid=appid)
+
+
+# The familiar logger functions are just the same
+logger.info("Hello World!")
 
 # Emit some OWASP-compliant logs
 logger.authz_admin(admin="banana-bob", user="coconut-charlie")
