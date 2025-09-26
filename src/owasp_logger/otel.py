@@ -1,9 +1,12 @@
-from opentelemetry.sdk._logs import (
-    LogData,
-    LogRecordProcessor,
-)
-
 from owasp_logger.model import NESTED_JSON_KEY
+
+try:
+    from opentelemetry.sdk._logs import LogData, LogRecordProcessor
+except ImportError as e:
+    raise ImportError(
+        "owasp_logger.otel requires OpenTelemetry dependencies. "
+        "Install the library with: pip install owasp-logger[otel]"
+    ) from e
 
 
 class OWASPLogRecordProcessor(LogRecordProcessor):
