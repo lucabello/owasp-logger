@@ -1,18 +1,19 @@
+import json
+from dataclasses import asdict, dataclass
 from typing import Dict
-from pydantic import BaseModel, Field
 
 NESTED_JSON_KEY = "owasp_event"
 
 
-class OWASPLogEvent(BaseModel):
-    datetime: str = Field(description="ISO8601 timestamp with timezone")
-    type: str = Field(default="security")
+@dataclass
+class OWASPLogEvent:
+    datetime: str  # ISO8601 timestamp with timezone
     appid: str
-    event: str = Field(description="The type of event being logged (i.e. sys_crash)")
-    level: str = Field(description="Log level reflecting the importance of the event")
-    description: str = Field(description="Human-readable description of the event being logged")
-    # useragent: str
-    # source_ip: str = Field(description="IP Address from which the event originated")
+    event: str  # The type of event being logged (i.e. sys_crash)
+    level: str  # Log level reflecting the importance of the event
+    description: str  # Human-readable description of the event being logged
+    type: str = "security"
+    # source_ip: str  # IP Address from which the event originated
     # host_ip: str
     # hostname: str
     # protocol: Literal["http", "https", "grpc"]
@@ -23,7 +24,8 @@ class OWASPLogEvent(BaseModel):
     # geo: str
 
     def to_json(self) -> str:
-        return self.model_dump_json(exclude_none=True)
+        return json.dumps(self.to_dict(), ensure_ascii=False)
 
     def to_dict(self) -> Dict:
-        return self.model_dump(exclude_none=True)
+        log_event = asdict(self)
+        return {k: v for k, v in log_event.items() if v is not None}

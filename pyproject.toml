@@ -8,9 +8,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = "~=3.8.0"
 
-dependencies = [
-  "pydantic",
-]
+dependencies = []
 
 [project.optional-dependencies]
 otel = [
@@ -37,6 +35,15 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/owasp_logger"]
+
+[tool.hatch.build.targets.sdist]
+# Include everything in git repo for source dist
+include = [
+    "src/owasp_logger",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 
 # Testing tools configuration
 [tool.coverage.run]
