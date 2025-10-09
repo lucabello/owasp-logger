@@ -203,16 +203,16 @@ You have to add some custom processors to the OpenTelemetry Collector configurat
 
 ##### juju debug-log
 
-??? instruction for parsing juju debug-log ???
+`juju debug-log` embeds the OWASP event blob as a JSON in their own logs. Parsing its values into attributes is simple:
 
 ```yaml
-transform/owasp-cleanup:
+transform/parse-juju:
   log_statements:
     - context: log
+      error_mode: ignore  # switch to ignore
       statements:
-        # TODO: finish looking into this
-        - merge_maps(attributes, ExtractPatterns(body, "^(?P<prefix>.*?)(?P<json>\\{.*\\}?$"), "upsert")
-        # TODO: probably need a ParseJSON somewhere
+        - merge_maps(log.cache, ExtractPatterns(body, "^(?P<prefix>.*?)(?P<json>\\{.*\\}?)$"), "upsert")
+        - merge_maps(log.attributes, ParseJSON(log.cache["json"]), "upsert")
 ```
 
 
