@@ -49,7 +49,7 @@ logger.info("Did I just get coconut-malled?")
 logger.authz_admin(
     userid="ananas-alex",
     admin_activity="watered_plants",
-    description="Admin anans-alex watered their plants",
+    description="Admin ananas-alex watered their plants",
 )
 ## Possibly adding optional parameters
 logger.authn_login_success(userid="banana-bob", description="hello", source_ip="10.1.2.3")

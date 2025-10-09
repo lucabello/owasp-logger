@@ -65,7 +65,7 @@ logger.info("Messages logged via .info() follow the same format")
 logger.authz_admin(
     userid="ananas-alex",
     admin_activity="watered_plants",
-    description="Admin anans-alex watered their plants",
+    description="Admin ananas-alex watered their plants",
 )
 ## Possibly adding optional parameters
 logger.sensitive_read(
