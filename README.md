@@ -68,6 +68,8 @@ flowchart LR
 
     openstack --> cos-proxy
     sunbeam --> otelcol-charm
+    app --> otlplog["otlp.log"]
+    otlplog --> otelcol-snap
     landscape --> otelcol-snap
     cloud-init --> otelcol-snap
     something --> loki3
