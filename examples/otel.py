@@ -62,4 +62,18 @@ logger = OWASPLogger(appid=appid, logger=logger)
 
 ## logger can now use both standard logging methods and OWASP events directly
 logger.info("Messages logged via .info() follow the same format")
-logger.authz_admin(admin="banana-bob", userid="coconut-charlie", event="something")
+logger.authz_admin(
+    userid="ananas-alex",
+    admin_activity="watered_plants",
+    description="Admin anans-alex watered their plants",
+)
+## Possibly adding optional parameters
+logger.sensitive_read(
+    userid="date-delilah",
+    obj="scroll",
+    description="User date-delilah read the secret scroll",
+    hostname="secret.scroll.com",
+    port=1234,
+    request_uri="http://secret.scroll.com/read/the/secret",
+    request_method="GET",
+)

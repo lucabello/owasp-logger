@@ -46,6 +46,22 @@ logger = OWASPLogger(appid="nestedjson.app", logger=logger)
 
 # Emit some OWASP-compliant logs
 logger.info("Did I just get coconut-malled?")
-logger.authz_admin(admin="banana-bob", userid="coconut-charlie", event="something")
-logger.authn_login_fail(userid="ananas-alex")
-logger.authn_login_fail_max(userid="ananas-alex", maxlimit=3)
+logger.authz_admin(
+    userid="ananas-alex",
+    admin_activity="watered_plants",
+    description="Admin anans-alex watered their plants",
+)
+## Possibly adding optional parameters
+logger.authn_login_success(userid="banana-bob", description="hello", source_ip="10.1.2.3")
+logger.crypt_decrypt_fail(
+    userid="coconut-charlie", description="User coconut-charlie failed to decrypt some file"
+)
+logger.sensitive_read(
+    userid="date-delilah",
+    obj="scroll",
+    description="User date-delilah read the secret scroll",
+    hostname="secret.scroll.com",
+    port=1234,
+    request_uri="http://secret.scroll.com/read/the/secret",
+    request_method="GET",
+)
