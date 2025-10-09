@@ -40,6 +40,15 @@ uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
 python examples/otel.py
 ```
 
+## Assumptions
+
+TODO: Restructure this
+
+- Python 3.11 for Unpack (reimplement it in the library from typing_extensions?)
+- All the logs flow through OTLP relations (no deprecated Loki exporter)
+- Loki 3
+- For charm developers, you *must* have an otelcol (no direct writes to Loki) or you don't get the correct attributes
+
 ## Getting OWASP logs in Loki
 
 To get your logs into Loki, we recommend using an OpenTelemetry Collector (charm or snap, depending on your needs).
@@ -111,7 +120,7 @@ In order to label logs consistently and make reliable dashboards, we need the OW
 }
 ```
 
-The `owasp#_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
+The `owasp_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
 
 Given that logs can have various formats depending on the application, the easiest way to get those attributes in place is to configure some *custom processors* in an OpenTelemetry Collector to parse the OWASP information from your log line. The following sections explain how to do so.
 
@@ -119,17 +128,65 @@ Given that logs can have various formats depending on the application, the easie
 
 This README classifies logs according to the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/signals/logs/).
 
+Note that all configuration snippets are not *complete configuration files*, but only show the relevant sections for the sake of simplicity.
+
 #### Structured logs
 
 A structured log is a log whose textual format follows a consistent, machine-readable format. For applications, one of the most common formats is JSON.
 
 ##### OpenTelemetry format
 
-If the application is already using the OTel format for logs, `OWASPLogger` will make sure the OWASP information is in the correct place, so there are no additional steps.
+If the application is already using the OTel format for logs, `OWASPLogger` will make sure the OWASP information is in the correct place. Assuming you have a dedicated file for these JSON logs, you can use the `filelog` receiver to parse them:
+
+```yaml
+receivers:
+  filelog:
+    include:
+      - /path/to/your/file.log
+
+processors:
+  # Parse the OTel format from the JSON log lines in the file
+  transform/parse-json:
+    log_statements:
+      - context: log
+        error_mode: ignore  # Log the error and continue (ignore|silent|propagate)
+        statements:
+          - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+          - set(log.body, log.cache["body"])
+          - set(log.severity_number, Int(log.cache["severity_number"]))
+          - set(log.severity_text, log.cache["severity_text"])
+          - merge_maps(log.attributes, log.cache["attributes"], "upsert")
+          - set(log.dropped_attributes_count, Int(log.cache["dropped_attributes"]))
+          - set(log.time, Time(log.cache["timestamp"], "%FT%T.%fZ"))
+          - set(log.trace_id, log.cache["trace_id"])
+          - set(log.span_id, log.cache["span_id"])
+          - merge_maps(resource.attributes, log.cache["resource"]["attributes"], "upsert")
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog]
+      processors: [transform/parse-json]
+```
+
+More information on the OTel log data model can be found here:
+- [OpenTelemetry: Logs Data Model](https://opentelemetry.io/docs/specs/otel/logs/data-model/)
+- [OpenTelemetry: Internal Log Context (representation)](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl/contexts/ottllog)
+
 
 ##### Generic JSON
 
-??? instructions for parsing arbitrary json logs ???
+If you have generic, arbitrarily-nested JSON logs in a file, you'll have to configure the transform processor accordingly in order to parse the relevant information.
+
+```yaml
+transform/parse-json:
+  log_statements:
+    - context: log
+      statements:
+        - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        - # parse the relevant fields as needed
+```
+
 
 #### Semistructured Logs
 
@@ -153,11 +210,17 @@ transform/owasp-cleanup:
       statements:
         # TODO: finish looking into this
         - merge_maps(attributes, ExtractPatterns(body, "^(?P<prefix>.*?)(?P<json>\\{.*\\}?$"), "upsert")
+        # TODO: probably need a ParseJSON somewhere
 ```
 
-TODO: add how logs appear in Loki (structured metadata?) and how to make a dashboard from them
 
 
 #### Unstructured logs
 
-??? not recommended, write your own parsing logic ???
+Unstructured logs don't follow a consistent structure, and are thus more difficult to parse and analyze at scale. You need to **write your own custom parsing logic** in some processor in order to extract the *attributes* and fields you need.
+
+## Visualizing OWASP Logs in Grafana
+
+TODO: write this section
+
+TODO: add how logs appear in Loki (structured metadata?) and how to make a dashboard from them
