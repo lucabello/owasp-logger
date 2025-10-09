@@ -62,4 +62,4 @@ logger = OWASPLogger(appid=appid, logger=logger)
 
 ## logger can now use both standard logging methods and OWASP events directly
 logger.info("Messages logged via .info() follow the same format")
-logger.authz_admin(admin="banana-bob", user="coconut-charlie")
+logger.authz_admin(admin="banana-bob", userid="coconut-charlie", event="something")

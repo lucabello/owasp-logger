@@ -46,6 +46,6 @@ logger = OWASPLogger(appid="nestedjson.app", logger=logger)
 
 # Emit some OWASP-compliant logs
 logger.info("Did I just get coconut-malled?")
-logger.authz_admin(admin="banana-bob", user="coconut-charlie")
-logger.authn_login_fail(user="ananas-alex")
-logger.authn_login_fail_max(user="ananas-alex", fail_limit=3)
+logger.authz_admin(admin="banana-bob", userid="coconut-charlie", event="something")
+logger.authn_login_fail(userid="ananas-alex")
+logger.authn_login_fail_max(userid="ananas-alex", maxlimit=3)

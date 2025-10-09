@@ -19,6 +19,8 @@ logger = OWASPLogger(appid=appid)
 logger.info("Hello World!")
 
 # Emit some OWASP-compliant logs
-logger.authz_admin(admin="banana-bob", user="coconut-charlie")
-logger.authn_login_fail(user="ananas-alex")
-logger.authn_login_fail_max(user="ananas-alex", fail_limit=3)
+logger.authn_login_success(userid="bob", description="hello", source_ip="aaaa")
+# logger.authz_admin(admin="banana-bob", userid="coconut-charlie", event="something")
+
+# logger.authn_login_fail(userid="ananas-alex")
+# logger.authn_login_fail_max(userid="ananas-alex", maxlimit=3)
