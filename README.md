@@ -4,6 +4,8 @@
 
 ## Installation
 
+⚠️ OWASPLogger currently requires Python 3.11+ due to the usage of `from typing_extensions import Unpack`.
+
 The package is not yet in PyPi, so you should install it from the git repo:
 
 ```bash
@@ -40,14 +42,6 @@ uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
 python examples/otel.py
 ```
 
-## Assumptions
-
-TODO: Restructure this
-
-- Python 3.11 for Unpack (reimplement it in the library from typing_extensions?)
-- All the logs flow through OTLP relations (no deprecated Loki exporter)
-- Loki 3
-- For charm developers, you *must* have an otelcol (no direct writes to Loki) or you don't get the correct attributes
 
 ## Getting OWASP logs in Loki
 
@@ -79,6 +73,9 @@ flowchart LR
     otelcol-charm -->|OTLP Format| loki3
     otelcol-charm -->|Loki Push API| loki2
 ```
+
+
+The preferred backend for OWASP logs is **Loki 3**, because it can store the OWASP information as structured metadata.
 
 ### Why you need an OpenTelemetry Collector
 
@@ -123,6 +120,8 @@ In order to label logs consistently and make reliable dashboards, we need the OW
 ```
 
 The `owasp_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
+
+While writing directly to a backend (e.g., Loki) is sometimes technically possible, having an OpenTelemetry Collector as a **normalization point** makes sure labels are what we expect to see.
 
 Given that logs can have various formats depending on the application, the easiest way to get those attributes in place is to configure some *custom processors* in an OpenTelemetry Collector to parse the OWASP information from your log line. The following sections explain how to do so.
 
@@ -214,13 +213,22 @@ transform/parse-juju:
 ```
 
 
-
 #### Unstructured logs
 
 Unstructured logs don't follow a consistent structure, and are thus more difficult to parse and analyze at scale. You need to **write your own custom parsing logic** in some processor in order to extract the *attributes* and fields you need.
 
 ## Visualizing OWASP Logs in Grafana
 
-TODO: write this section
+If you followed this README and set up a well-configured OpenTelemetry Collector as a *normalization point*, the logs will reach Loki with the correct format. Looking at the data via the Grafana datasource UI, this is how an example OWASP log looks like:
 
-TODO: add how logs appear in Loki (structured metadata?) and how to make a dashboard from them
+TODO: insert screenshot
+
+The consistency in log format helps considerably when querying the Loki datasource to extract aggregate information. For example, we can **count how many OWASP events have been received**:
+
+```
+sum by (owasp_event_name) (label_replace(count_over_time({service_name="example-service"}[$__auto] | owasp_event_event=~".+"), "owasp_event_name", "$1", "owasp_event_event", "^([^:]+):.*$"))
+```
+
+Using this query in a Grafana dashboard allows us to build a nice panel:
+
+TODO: insert screenshot
