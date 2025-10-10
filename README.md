@@ -1,7 +1,5 @@
 # OWASP Logger
 
-**🚧 This readme is work in progress! 🚧**
-
 ## Installation
 
 ⚠️ OWASPLogger currently requires Python 3.11+ due to the usage of `from typing_extensions import Unpack`.
@@ -19,7 +17,7 @@ uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
 
 Example usage:
 
-```
+```bash
 # Create a virtual environment
 uv venv  # or the classic 'python -m venv .venv'
 source .venv/bin/activate
@@ -221,7 +219,8 @@ Unstructured logs don't follow a consistent structure, and are thus more difficu
 
 If you followed this README and set up a well-configured OpenTelemetry Collector as a *normalization point*, the logs will reach Loki with the correct format. Looking at the data via the Grafana datasource UI, this is how an example OWASP log looks like:
 
-TODO: insert screenshot
+<img width="974" height="551" alt="2025-10-10_10-25" src="https://github.com/user-attachments/assets/6f89de01-51b5-4c95-805e-dd7eb7ff4981" />
+
 
 The consistency in log format helps considerably when querying the Loki datasource to extract aggregate information. For example, we can **count how many OWASP events have been received**:
 
@@ -231,4 +230,5 @@ sum by (owasp_event_name) (label_replace(count_over_time({service_name="example-
 
 Using this query in a Grafana dashboard allows us to build a nice panel:
 
-TODO: insert screenshot
+<img width="816" height="345" alt="2025-10-10_11-44" src="https://github.com/user-attachments/assets/928e86c2-637e-43f7-b0c1-ec32dc5c3cb6" />
+
