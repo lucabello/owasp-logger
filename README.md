@@ -160,8 +160,6 @@ processors:
           - merge_maps(log.attributes, log.cache["attributes"], "upsert")
           - set(log.dropped_attributes_count, Int(log.cache["dropped_attributes"]))
           - set(log.time, Time(log.cache["timestamp"], "%FT%T.%fZ"))
-          - set(log.trace_id, log.cache["trace_id"])
-          - set(log.span_id, log.cache["span_id"])
           - merge_maps(resource.attributes, log.cache["resource"]["attributes"], "upsert")
 
 service:
