@@ -49,20 +49,22 @@ def random_bool():
     return random.choice([True, False])
 
 
+# INFO
+if random_bool():
+    for i in range(1, random.randint(1, 5)):
+        logger.upload_complete(
+            userid="banana-bob",
+            filename="banana.jpg",
+            type="jpg",
+            description="User banana-bob has uploaded a file named banana.jpg",
+        )
+# WARNING
 if random_bool():
     for i in range(1, random.randint(1, 5)):
         logger.authz_admin(
             userid="ananas-alex",
             admin_activity="watered_plants",
             description="Admin anans-alex watered their plants",
-        )
-if random_bool():
-    for i in range(1, random.randint(1, 5)):
-        logger.authn_impossible_travel(userid="banana-bob", region1="office", region2="beach")
-if random_bool():
-    for i in range(1, random.randint(1, 5)):
-        logger.malicious_extraneous(
-            user_or_ip="coconut-charlie", inputname="palmtree", useragent="CoconutBrowser 1.0"
         )
 if random_bool():
     for i in range(1, random.randint(1, 5)):
@@ -74,4 +76,10 @@ if random_bool():
             port=1234,
             request_uri="http://secret.scroll.com/read/the/secret",
             request_method="GET",
+        )
+# CRITICAL
+if random_bool():
+    for i in range(1, random.randint(1, 5)):
+        logger.malicious_extraneous(
+            user_or_ip="coconut-charlie", inputname="palmtree", useragent="CoconutBrowser 1.0"
         )
