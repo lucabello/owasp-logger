@@ -16,10 +16,10 @@ except ImportError as e:
         "Install the library with: pip install owasp-logger[otel]"
     ) from e
 
+import random
+
 from owasp_logger.logger import OWASPLogger
 from owasp_logger.otel import OWASPLogRecordProcessor
-
-import random
 
 service_name = "example-service"
 appid = "example.appid"

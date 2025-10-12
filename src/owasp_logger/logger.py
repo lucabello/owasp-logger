@@ -1,7 +1,9 @@
 import logging
 from datetime import datetime, timezone
 from typing import List, Literal, Optional
+
 from typing_extensions import Unpack
+
 from owasp_logger.model import NESTED_JSON_KEY, OWASPLogEvent, OWASPLogMetadata
 
 
@@ -110,7 +112,7 @@ class OWASPLogger:
     # Authorization
 
     def authz_fail(self, userid: str, resource: str, **metadata: Unpack[OWASPLogMetadata]):
-        """Record an attempt to access an unauthorized resouce."""
+        """Record an attempt to access an unauthorized resource."""
         event = f"authz_fail:{userid},{resource}"
         self._log_event(event, logging.CRITICAL, metadata)
 

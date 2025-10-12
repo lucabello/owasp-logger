@@ -2,15 +2,13 @@
 
 ## Installation
 
-⚠️ OWASPLogger currently requires Python 3.11+ due to the usage of `from typing_extensions import Unpack`.
-
-The package is not yet in PyPi, so you should install it from the git repo:
+You can install the library with `uv` or `pip`:
 
 ```bash
 # Standalone logger (without OTel dependencies)
-uv pip install "git+https://github.com/lucabello/owasp-logger"
+uv pip install owasp-logger
 # Additional OTel logger
-uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
+uv pip install owasp-logger[otel]
 ```
 
 ## Usage
@@ -23,7 +21,7 @@ uv venv  # or the classic 'python -m venv .venv'
 source .venv/bin/activate
 
 # Install the owasp-logger library
-uv pip install "git+https://github.com/lucabello/owasp-logger"
+uv pip install owasp-logger
 
 # Try the logger from the Python shell
 python
@@ -36,7 +34,7 @@ python
 python examples/nested_json.py
 
 # If you want the OTel format, install the owasp-logger[otel] extension
-uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
+uv pip install owasp-logger[otel]
 python examples/otel.py
 ```
 
