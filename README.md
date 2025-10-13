@@ -1,5 +1,11 @@
 # OWASP Logger
 
+[![PyPi Release](https://img.shields.io/pypi/v/owasp-logger?label=PyPi&color=blue)](https://pypi.org/project/owasp-logger/)
+[![GitHub Release](https://img.shields.io/github/v/release/lucabello/owasp-logger?label=GitHub&color=blue)](https://github.com/lucabello/owasp-logger/releases)
+[![Publish to PyPi](https://github.com/lucabello/owasp-logger/actions/workflows/publish.yaml/badge.svg)](https://github.com/lucabello/owasp-logger/actions/workflows/publish.yaml)
+![Commits Since Release](https://img.shields.io/github/commits-since/lucabello/owasp-logger/latest?label=Commits%20since%20last%20release&color=darkgreen)
+
+
 OWASP Logger is a Python library that provides structured, [OWASP-compliant](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html) security logging.
 
 It enables consistent and machine-readable logs for authentication, authorization, session management, and sensitive data access - built directly on top of the standard logging module.
