@@ -10,7 +10,7 @@ default:
 lock:
   uv lock --upgrade --no-cache
 
-# Lint the codebase using ruff
+# Lint the codebase and perform static checks
 [group("dev")]
 lint:
     # Lint the code
