@@ -1,85 +1,189 @@
 # OWASP Logger
 
-## Installation
+OWASP Logger is a Python library that provides structured, [OWASP-compliant](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html) security logging.
 
-⚠️ OWASPLogger currently requires Python 3.11+ due to the usage of `from typing_extensions import Unpack`.
+It enables consistent and machine-readable logs for authentication, authorization, session management, and sensitive data access - built directly on top of the standard logging module.
 
-The package is not yet in PyPi, so you should install it from the git repo:
+## 📦 Installation
 
-```bash
-# Standalone logger (without OTel dependencies)
-uv pip install "git+https://github.com/lucabello/owasp-logger"
-# Additional OTel logger
-uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
-```
-
-## Usage
-
-Example usage:
+You can install the library with `uv` or `pip`:
 
 ```bash
-# Create a virtual environment
-uv venv  # or the classic 'python -m venv .venv'
-source .venv/bin/activate
-
-# Install the owasp-logger library
-uv pip install "git+https://github.com/lucabello/owasp-logger"
-
-# Try the logger from the Python shell
-python
->>> from owasp_logger import OWASPLogger
->>> logger = OWASPLogger(appid="coconut.app")
->>> logger.authn_login_lock(user="banana-bob")
-{"datetime": "2025-09-26T12:37:37.886421+02:00", "appid": "coconut.app", "event": "authn_login_lock:banana-bob,maxretries", "level": "WARNING", "description": "User banana-bob login locked because maxretries exceeded", "type": "security"}
-
-# Try out the examples
-python examples/nested_json.py
-
-# If you want the OTel format, install the owasp-logger[otel] extension
-uv pip install "git+https://github.com/lucabello/owasp-logger[otel]"
-python examples/otel.py
+# Standalone logger (without OpenTelemetry dependencies)
+uv pip install owasp-logger
+# With OpenTelemtry integration
+uv pip install owasp-logger[otel]
 ```
 
+---
 
-## Getting OWASP logs in Loki
+## 🚀 Usage
 
-To get your logs into Loki, we recommend using an OpenTelemetry Collector (charm or snap, depending on your needs).
+### Quick Start
+
+```python
+from owasp_logger import OWASPLogger
+
+# Initialize
+owasp_log = OWASPLogger(appid="coconut.app")
+
+# Log a security event
+owasp_log.authn_login_fail(userid="banana-bob", description="Invalid password attempt")
+```
+
+Output (JSON structured log):
+```json
+{
+  "datetime": "2025-09-26T12:37:37.886421+02:00",
+  "appid": "coconut.app",
+  "event": "authn_login_fail:banana-bob",
+  "level": "WARNING",
+  "description": "Invalid password attempt"
+}
+```
+
+Normal logging methods (e.g., `.info()`, `.warning()`, etc.) are all available and won't follow the OWASP format.
+All logs emitted via the other functions are OWASP-structured.
+
+See the [`examples/`](https://github.com/lucabello/owasp-logger/tree/main/examples) folder for more demos:
+- [`nested_json.py`](https://github.com/lucabello/owasp-logger/blob/main/examples/nested_json.py) - structured JSON logging
+- [`dedicated_audit_logs.py`](https://github.com/lucabello/owasp-logger/blob/main/examples/dedicated_audit_logs.py) - dedicated audit log file
+- [`otel.py`](https://github.com/lucabello/owasp-logger/blob/main/examples/otel.py) - logs with the OpenTelemetry instrumentation
+- [`random_otel.py`](https://github.com/lucabello/owasp-logger/blob/main/examples/random_otel.py) - synthetic OpenTelemetry logs for testing
+
+### OpenTelemetry Integration
+
+Installing the package with the extra OpenTelemetry dependency (i.e., `owasp-logger[otel]`) allows you to emit OWASP-compliant logs in the OpenTelemetry format.
+
+```python
+# Assuming you already instrumented your app with an OpenTelemetry logger
+...
+
+logger = getLogger("otel")  # OpenTelemetry logger
+
+owasp_log = OWASPLogger(appid="secure-app", logger=logger)
+owasp_log.authz_admin(
+    userid="ananas-alex",
+    admin_activity="watered_plants",
+    description="Admin ananas-alex watered their plants",
+))
+```
+
+Output (JSON structured log, in the OpenTelemetry format):
+```json
+{
+    "body": "Admin ananas-alex watered their plants",
+    "severity_number": 13,
+    "severity_text": "WARN",
+    "attributes": {
+        "owasp_event": {
+            "datetime": "2025-10-12T18:24:33.887582+02:00",
+            "appid": "example.appid",
+            "event": "authz_admin:ananas-alex,watered_plants",
+            "level": "WARNING",
+            "description": "Admin ananas-alex watered their plants"
+        },
+        "code.file.path": "/home/aegis/Repositories/Canonical/owasp-logger/src/owasp_logger/logger.py",
+        "code.function.name": "_log_event",
+        "code.line.number": 35
+    },
+    "dropped_attributes": 0,
+    "timestamp": "2025-10-12T16:24:33.887697Z",
+    "observed_timestamp": "2025-10-12T16:24:33.887714Z",
+    "trace_id": "0x00000000000000000000000000000000",
+    "span_id": "0x0000000000000000",
+    "trace_flags": 0,
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.33.1",
+            "service.name": "example-service"
+        },
+        "schema_url": ""
+    }
+}
+```
+
+To learn how to instrument your Python application with OpenTelemetry, check out the official documentation:
+- [Instrumentation (Logs) | OpenTelemetry](https://opentelemetry.io/docs/languages/python/instrumentation/#logs)
+- [Logs Auto-Instrumentation Example | OpenTelemetry](https://opentelemetry.io/docs/zero-code/python/logs-example/)
+
+---
+
+## 🧾 Log Model
+
+Each OWASP log event conforms to the structure presented in the OWASP [Logging Vocabulary Cheat Sheet]([https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html#format)):
+
+```python
+{
+    # Required fields
+    "datetime": "2021-01-01T01:01:01-0700",
+    "appid": "foobar.netportal_auth",
+    "event": "AUTHN_login_success:joebob1",
+    "level": "INFO",
+    # Optional fields
+    "description": "User joebob1 login successfully",
+    "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
+    "source_ip": "165.225.50.94",
+    "host_ip": "10.12.7.9",
+    "hostname": "portalauth.foobar.com",
+    "protocol": "https",
+    "port": "440",
+    "request_uri": "/api/v2/auth/",
+    "request_method": "POST",
+    "region": "AWS-US-WEST-2",
+    "geo": "USA"
+}
+```
+
+This model is accurately reflected in the [`model.py`](https://github.com/lucabello/owasp-logger/blob/main/src/owasp_logger/model.py) file.
+
+When an OWASP log is emitted as part of a structured log which is either OpenTelemetry format or an arbitrary JSON, its information will be nested under the `owasp_event` key.
+
+---
+
+## 🧭 Getting OWASP logs into Grafana Loki
+
+OWASPLogger's logs can be sent to a Loki instance through OpenTelemetry Collector, which acts as a normalization and enrichment layer.
+The collector itself is available both as a [charm](https://charmhub.io/opentelemetry-collector-operator) and [snap](https://snapcraft.io/opentelemetry-collector).
 
 ```mermaid
 flowchart LR
     openstack[Openstack]
     sunbeam[Sunbeam]
-    landscape
-    cloud-init
-    something[Something using OTel SDK + OWASPLogger]
-    cos-proxy
+    landscape[Landscape]
+    landscapelog[["*Landscape log files*"]]
+    cloud-init[["*cloud-init.log*"]]
+    app["Any application"]
+    otlplog[["*otlp.log*"]]
+    something[Python application using<br>OTel SDK + OWASPLogger]
+    cos-proxy["COS Proxy<br>**Charm**"]
     otelcol-snap[OpenTelemetry Collector **Snap**]
     otelcol-charm[OpenTelemetry Collector **Charm**]
     loki2[Loki 2]
     loki3[Loki 3]
 
-    openstack --> cos-proxy
-    sunbeam --> otelcol-charm
-    app --> otlplog["otlp.log"]
-    otlplog --> otelcol-snap
-    landscape --> otelcol-snap
-    cloud-init --> otelcol-snap
-    something --> loki3
+    openstack -->|Logs are scraped by| cos-proxy
+    sunbeam -->|*filelog* receiver| otelcol-charm
+    app -->|Saves OTLP logs to file| otlplog
+    otlplog -->|*filelog* receiver| otelcol-snap
+    landscape -->|Saves logs to file| landscapelog
+    landscapelog -->|*filelog* receiver| otelcol-snap
+    cloud-init -->|*filelog* receiver| otelcol-snap
+    something -->|Direct write in<br>OTLP format| loki3
 
     cos-proxy --> otelcol-charm
-    otelcol-snap --> loki3
+    otelcol-snap -->|OTLP format| loki3
     otelcol-charm -->|OTLP Format| loki3
     otelcol-charm -->|Loki Push API| loki2
 ```
 
+The preferred backend is **Loki 3**, which preserves structured attributes for consistent search and dashboards.
 
-The preferred backend for OWASP logs is **Loki 3**, because it can store the OWASP information as structured metadata.
+### Why an OpenTelemetry Collector?
 
-### Why you need an OpenTelemetry Collector
-
-What should logs look like before reaching Loki?
-
-In order to label logs consistently and make reliable dashboards, we need the OWASP information to be a nested **attribute**. Here's what a log line looks like in OTel format:
+Using an OpenTelemetry Collector ensures all logs share a consistent structure and labels, simplifying queries and dashboards. As mentioned in the log model, the OWASP information must be a nested attribute under the `owasp_event` key:
 
 ```json
 {
@@ -117,17 +221,16 @@ In order to label logs consistently and make reliable dashboards, we need the OW
 }
 ```
 
-The `owasp_event` attribute will be mapped as-is to **structured metadata** in Loki. The metadata existing with this format is foundational to any dashboard trying to visualize OWASP information.
+The attributes will be mapped as-is to **structured metadata** in Loki.
 
-While writing directly to a backend (e.g., Loki) is sometimes technically possible, having an OpenTelemetry Collector as a **normalization point** makes sure labels are what we expect to see.
+Given that logs can have various formats depending on the application, the easiest way to get those attributes in place is to configure some *custom processors* to parse the OWASP information from your log line. The following sections explain how to do so.
 
-Given that logs can have various formats depending on the application, the easiest way to get those attributes in place is to configure some *custom processors* in an OpenTelemetry Collector to parse the OWASP information from your log line. The following sections explain how to do so.
+### How to configure OpenTelemetry Collector
 
-### How to configure an OpenTelemetry Collector
+Logs can arrive in different formts - this section explains how to parse them into OpenTelemetry attributes.
 
-This README classifies logs according to the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/signals/logs/).
-
-Note that all configuration snippets are not *complete configuration files*, but only show the relevant sections for the sake of simplicity.
+> This README classifies logs according to the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/signals/logs/).  
+> Note that all configuration snippets are not *complete configuration files*, but only show the relevant sections for the sake of simplicity.
 
 #### Structured logs
 
@@ -135,7 +238,7 @@ A structured log is a log whose textual format follows a consistent, machine-rea
 
 ##### OpenTelemetry format
 
-If the application is already using the OTel format for logs, `OWASPLogger` will make sure the OWASP information is in the correct place. Assuming you have a dedicated file for these JSON logs, you can use the `filelog` receiver to parse them:
+If the application is already using the OpenTelemetry format for logs, `OWASPLogger` will make sure the OWASP information is in the correct place. Assuming you have a dedicated file for these JSON logs, you can use the `filelog` receiver to parse them:
 
 ```yaml
 receivers:
@@ -166,9 +269,9 @@ service:
       processors: [transform/parse-json]
 ```
 
-More information on the OTel log data model can be found here:
-- [OpenTelemetry: Logs Data Model](https://opentelemetry.io/docs/specs/otel/logs/data-model/)
-- [OpenTelemetry: Internal Log Context (representation)](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl/contexts/ottllog)
+More information on the OpenTelemetry log data model can be found here:
+- [Logs Data Model | OpenTelemetry](https://opentelemetry.io/docs/specs/otel/logs/data-model/)
+- [Internal Log Context (representation) | OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl/contexts/ottllog)
 
 
 ##### Generic JSON
@@ -198,7 +301,7 @@ You have to add some custom processors to the OpenTelemetry Collector configurat
 
 ##### juju debug-log
 
-`juju debug-log` embeds the OWASP event blob as a JSON in their own logs. Parsing its values into attributes is simple:
+`juju debug-log` embeds the OWASP event blob as a JSON in the Juju logs. Parsing its values into attributes is simple:
 
 ```yaml
 transform/parse-juju:
@@ -215,14 +318,17 @@ transform/parse-juju:
 
 Unstructured logs don't follow a consistent structure, and are thus more difficult to parse and analyze at scale. You need to **write your own custom parsing logic** in some processor in order to extract the *attributes* and fields you need.
 
-## Visualizing OWASP Logs in Grafana
+---
 
-If you followed this README and set up a well-configured OpenTelemetry Collector as a *normalization point*, the logs will reach Loki with the correct format. Looking at the data via the Grafana datasource UI, this is how an example OWASP log looks like:
+## 📊 Visualizing OWASP Logs in Grafana
+
+
+When OWASP logs reach Loki via the OpenTelemetry Collector used as a *normalization point*, they will contain the `owasp_event` as structured metadata.
+Looking at the data via the Grafana datasource UI, this is how an example OWASP log looks like:
 
 <img width="974" height="551" alt="2025-10-10_10-25" src="https://github.com/user-attachments/assets/6f89de01-51b5-4c95-805e-dd7eb7ff4981" />
 
-
-The consistency in log format helps considerably when querying the Loki datasource to extract aggregate information. For example, we can **count how many OWASP events have been received**:
+Here is an example query to count OWASP events by type:
 
 ```
 sum by (owasp_event_name) (label_replace(count_over_time({service_name="example-service"}[$__auto] | owasp_event_event=~".+"), "owasp_event_name", "$1", "owasp_event_event", "^([^:]+):.*$"))
@@ -232,3 +338,10 @@ Using this query in a Grafana dashboard allows us to build a nice panel:
 
 <img width="816" height="345" alt="2025-10-10_11-44" src="https://github.com/user-attachments/assets/928e86c2-637e-43f7-b0c1-ec32dc5c3cb6" />
 
+---
+
+## 🔗 References
+
+- [OWASP Logging Vocabulary Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Vocabulary_Cheat_Sheet.html)
+- [OpenTelemetry Logs Data Model](https://opentelemetry.io/docs/specs/otel/logs/data-model/)
+- [Grafana Loki documentation](https://grafana.com/docs/loki/latest/)

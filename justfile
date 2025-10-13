@@ -1,14 +1,64 @@
-uv_flags := "--frozen --isolated --all-groups"
+set shell := ["bash", "-c"]
+uv_flags := "--frozen --isolated --all-groups --all-extras"
 
 [private]
 default:
   just --list
 
+# Update uv.lock
+[group("dev")]
 lock:
   uv lock --upgrade --no-cache
 
+# Lint the codebase using ruff
+[group("dev")]
 lint:
-  uv run {{uv_flags}} ruff check src tests examples
+    # Lint the code
+    uv run {{uv_flags}} ruff check
+    # Run static checks
+    uv run {{uv_flags}} pyright src
+    # Lint language and typos
+    uv run {{uv_flags}} codespell src
 
-fmt:
-  uv run {{uv_flags}} ruff format src tests examples
+# Format the codebase using ruff
+[group("dev")]
+format:
+    # Fix generic linting issues
+    uv run {{uv_flags}} ruff check --fix-only
+    # Fix import-related issues (including ordering)
+    uv run {{uv_flags}} ruff check --select=I --fix-only
+    # Format the code
+    uv run {{uv_flags}} ruff format
+
+# Build the project
+[group("build")]
+build:
+    uv build
+
+# Remove build artifacts, caches, and temporary files
+[group("build")]
+clean:
+    # Remove __pycache__ directories
+    find . -type d -name "__pycache__" -exec rm -r {} + || true
+    # Remove .pytest_cache directory
+    rm -rf .pytest_cache
+    # Remove build/dist/egg-info directories
+    rm -rf build dist *.egg-info
+    # Remove coverage reports
+    rm -f .coverage coverage.xml
+
+# Create a GitHub release (which will trigger a PyPi release)
+[group("release")]
+release:
+    #!/usr/bin/env bash
+    latest_release="$(gh release list --limit=1 --order=desc --json=tagName | jq -r '.[].tagName')"
+    echo "Latest release on GitHub is ${latest_release}"
+    pyproject_release="$(yq -oy .project.version pyproject.toml)"
+    echo "Current version in pyproject.toml is v${pyproject_release}"
+    echo
+    read -p "Proceed releasing v${pyproject_release}? (y/n): " answer
+    if [[ ! "$answer" == [Yy] ]] ; then
+        echo "Cancelled."
+        exit 1
+    fi
+    gh release create "v${pyproject_release}" --generate-notes --notes-start-tag="${latest_release}"

@@ -1,6 +1,7 @@
 """Demonstrate the usage of OWASPLogger for a dedicated audit log file."""
 
 import logging
+
 from owasp_logger.logger import OWASPLogger
 
 appid = "example.appid"
