@@ -3,8 +3,6 @@
 [project]
 name = "owasp-logger"
 version = "0.1.0"
-license = "Apache-2.0"
-license-files = ["LICEN[CS]E.*"]
 authors = [
     {name = "Luca Bello", email = "luca.bello@canonical.com"},
 ]
@@ -36,10 +34,6 @@ dev = [
   "pytest",
   "coverage[toml]",
 ]
-
-[build-system]
-requires = ["uv_build>=0.9.2,<0.10.0"]
-build-backend = "uv_build"
 
 # Linting tools configuration
 [tool.ruff]
