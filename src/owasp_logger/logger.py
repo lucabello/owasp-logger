@@ -33,7 +33,9 @@ class OWASPLogger:
             **metadata,
         )
         self.logger.log(
-            level, {NESTED_JSON_KEY: log.to_json()}, extra={NESTED_JSON_KEY: log.to_dict()}
+            level,
+            log.to_json(nested_json_key=NESTED_JSON_KEY),
+            extra={NESTED_JSON_KEY: log.to_dict()},
         )
 
     # Authentication

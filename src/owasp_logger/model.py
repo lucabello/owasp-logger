@@ -22,7 +22,10 @@ class OWASPLogEvent:
     region: Optional[str] = None
     geo: Optional[str] = None
 
-    def to_json(self) -> str:
+    def to_json(self, nested_json_key: Optional[str] = None) -> str:
+        """Return the OWASPLogEvent as JSON, optionally nested under 'nested_json_key'."""
+        if nested_json_key:
+            return json.dumps({nested_json_key: self.to_dict()}, ensure_ascii=False)
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     def to_dict(self) -> Dict:
