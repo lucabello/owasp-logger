@@ -57,3 +57,7 @@ markers = ["setup", "work", "teardown"]
 [tool.codespell]
 skip = ".git,.tox,build,venv*"
 ignore-words-list = "assertIn"
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
