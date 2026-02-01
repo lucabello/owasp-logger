@@ -3,13 +3,12 @@
 [project]
 name = "owasp-logger"
 version = "0.1.4"
-license = "Apache-2.0"
-license-files = ["LICEN[CS]E.*"]
+description = "OWASP-compliant structured security event logger for Python applications."
 authors = [
     {name = "Luca Bello", email = "luca.bello@canonical.com"},
 ]
-description = "OWASP-compliant structured security event logger for Python applications."
 readme = "README.md"
+license-files = ["LICEN[CS]E.*"]
 requires-python = ">=3.8"
 dependencies = []
 
@@ -20,29 +19,43 @@ otel = [
   "opentelemetry-instrumentation",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff",
+    "pyright",
+    "codespell",
+    "vulture",
+    "pytest",
+    "pytest-cov",
+    "pytest-sugar",
+    "actionlint-py",
+]
+
 [project.urls]
 Homepage = "https://github.com/lucabello/owasp-logger"
 Repository = "https://github.com/lucabello/owasp-logger"
 Issues = "https://github.com/lucabello/owasp-logger/issues"
 
-[dependency-groups]
-dev = [
-  # Linting
-  "ruff",
-  "codespell",
-  # Static
-  "pyright",
-  # Unit
-  "pytest",
-  "coverage[toml]",
-]
 
-# Linting tools configuration
+# Building and publishing
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+# Tools configuration
 [tool.ruff]
 line-length = 99
 
-[lint.pydocstyle]
+[tool.lint.pydocstyle]
 convention = "google"
+
+[tool.codespell]
+skip = ".git,build,venv*"
+ignore-words-list = "assertIn"
+
+[tool.vulture]
+min_confidence = 80
+ignore_names = ["timeout_millis"]
 
 [tool.pyright]
 extraPaths = ["src", "examples"]
@@ -52,14 +65,5 @@ pythonPlatform = "Linux"
 [tool.pytest.ini_options]
 minversion = "6.0"
 log_cli_level = "INFO"
-asyncio_mode = "auto"
 addopts = "--tb=native --verbose --capture=no --log-cli-level=INFO"
 markers = ["setup", "work", "teardown"]
-
-[tool.codespell]
-skip = ".git,.tox,build,venv*"
-ignore-words-list = "assertIn"
-
-[build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
