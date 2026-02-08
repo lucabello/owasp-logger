@@ -29,6 +29,10 @@ dev = [
     "pytest-cov",
     "pytest-sugar",
     "actionlint-py",
+    # otel deps
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "opentelemetry-instrumentation",
 ]
 
 [project.urls]
