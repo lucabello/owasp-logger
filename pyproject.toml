@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 [project]
 name = "owasp-logger"
-version = "0.1.4"
+version = "0.1.5"
 description = "OWASP-compliant structured security event logger for Python applications."
 authors = [
     {name = "Luca Bello", email = "luca.bello@canonical.com"},
