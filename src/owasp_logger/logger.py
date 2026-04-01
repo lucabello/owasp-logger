@@ -27,6 +27,7 @@ class OWASPLogger:
         """Emit an OWASP-compliant log."""
         log = OWASPLogEvent(
             datetime=datetime.now(timezone.utc).astimezone().isoformat(),
+            type="security",
             appid=self.appid,
             event=event,
             level=logging.getLevelName(level),
