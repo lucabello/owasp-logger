@@ -8,6 +8,7 @@ NESTED_JSON_KEY = "owasp_event"
 @dataclass
 class OWASPLogEvent:
     datetime: str  # ISO8601 timestamp with timezone
+    type: str  # Log type, always "security" for OWASP events
     appid: str
     event: str  # The type of event being logged (i.e. sys_crash)
     level: str  # Log level reflecting the importance of the event
